@@ -1,5 +1,6 @@
 package com.trx.multiping;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -93,6 +94,13 @@ public class MainActivity extends AppCompatActivity implements
                 title = getString(R.string.frag_title_about);
                 viewIsAtHome = false;
                 break;
+
+            case R.id.nav_share:
+                Intent shareIntent=new Intent(android.content.Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
+                shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.share_text));
+                startActivity(Intent.createChooser(shareIntent, getString (R.string.share_via)));
         }
 
         if (fragment != null) {

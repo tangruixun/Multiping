@@ -120,8 +120,8 @@ public class PingFragment extends Fragment {
         IpEndText = (EditText) rootView.findViewById(R.id.ip_addr_end);
         final TextView localIpText = (TextView) rootView.findViewById(R.id.title);
 
-        IpStartText.setText("192.168.1.95");
-        IpEndText.setText("192.168.1.100");
+        //IpStartText.setText("192.168.1.95");
+        //IpEndText.setText("192.168.1.100");
 
         resultsAdapter = new PingResultsAdapter(context, resultArray);
         listView.setAdapter(resultsAdapter);
@@ -137,10 +137,6 @@ public class PingFragment extends Fragment {
                 // hide IME
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
-                // TODO: save user input IP for next use
-                // TODO: add about fragment information
-                // TODO: add cancel function
 
                 fab.setEnabled(false);
                 IpStartText.setEnabled(false);

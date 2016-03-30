@@ -13,7 +13,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/title"/>
+            android:id="@+id/title"
+            android:typeface="sans"
+            android:textStyle="normal|bold"
+            android:gravity="center"
+            android:textSize="16sp" />
 
         <EditText
             android:layout_width="match_parent"
@@ -41,12 +45,22 @@
             android:layout_alignParentBottom="true">
         </com.google.android.gms.ads.AdView>
 
+        <TextView
+            android:id="@+id/stats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:typeface="sans"
+            android:textStyle="normal|bold"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:layout_above="@id/adView" />
+
         <ListView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:id="@+id/listView"
             android:layout_below="@id/ip_addr_end"
-            android:layout_above="@id/adView"/>
+            android:layout_above="@id/stats"/>
 
     </RelativeLayout>
 

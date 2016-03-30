@@ -81,4 +81,11 @@
     <string name="pref_sound_key">sound</string>
     <string name="version">v0.1</string>
     <string name="prom_ip_end_less_than_begin">End IP must greater or equal than start IP...</string>
+    <string name="cancel">Cancel</string>
+    <string name="share_this_app">Share This App</string>
+    <string name="share_via">Share via...</string>
+    <string name="share_text">Get MultiPing to scan IP range on Android!</string>
+    <string name="share_subject">Multi Ping</string>
+    <string name="copyright">T. R. X.</string>
+    <string name="copyright_year">2016</string>
 </resources>

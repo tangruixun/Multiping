@@ -3,6 +3,7 @@ package com.trx.multiping;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -10,6 +11,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -26,19 +28,40 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
     private ProgressDialog progressDlg = null;
     private Context context;
     private SharedPreferences sharedPreferences;
+    private PingTask myTask = this;
     private boolean bMethod;
     private boolean bBeep;
+    private TextView StatText;
 
     public PingTask(Context c) {
         contextReference = new WeakReference<>(c);
         context = contextReference.get();
 
+        myTask = this;
+        StatText = (TextView) ((Activity) context).findViewById(R.id.stats);
         progressDlg = new ProgressDialog(context);
         progressDlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDlg.setIndeterminate(false);
-        progressDlg.setCancelable(false);
+        progressDlg.setCancelable(true);
         progressDlg.setCanceledOnTouchOutside(false);
         progressDlg.setProgressNumberFormat(null);
+        progressDlg.setButton(DialogInterface.BUTTON_NEGATIVE, context.getString (R.string.cancel), new DialogInterface.OnClickListener() {
+
+                    /**
+                     * This method will be invoked when a button in the dialog is clicked.
+                     *
+                     * @param dialog The dialog that received the click.
+                     * @param which  The button that was clicked (e.g.
+                     *               {@link DialogInterface#BUTTON1}) or the position
+                     */
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (myTask!=null) {
+                            myTask.cancel(true);
+                            cancel(true);
+                        }
+                    }
+                });
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         bMethod = sharedPreferences.getBoolean(context.getString(R.string.pref_scan_method_key), false);
@@ -71,6 +94,9 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
         InetAddress ip;
         int i = 0;
         for (long longip: params[0]) {
+            if (myTask.isCancelled()) {
+                break;
+            }
             publishProgress(0, i);
             try {
                 ip = longToIp(longip);
@@ -126,7 +152,47 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
         super.onPostExecute(pingResults);
         ((Activity) context).getWindow().clearFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         progressDlg.dismiss();
+        StatText.setText(StaticResultInfo (pingResults));
 
+    }
+
+    private String StaticResultInfo(List<PingResult> resultArray) {
+        String stats = "";
+        double lostPrecents = 0;
+        int n = 0; // pingable number
+        int size = resultArray.size();
+        long pingableTime = 0;
+        long totalTime = 0;
+        long minTime = 0;
+        long maxTime = 0;
+        for (PingResult resultItem:
+                resultArray) {
+            if (resultItem.isReachable()) {
+                n++;
+                long echoTime = resultItem.getEchoTime();
+                long lastechoTime = resultArray.get(resultArray.indexOf(resultItem) - 1).getEchoTime();
+                pingableTime += echoTime;
+                if (echoTime < lastechoTime) {
+                    minTime = echoTime;
+                } else {
+                    maxTime = echoTime;
+                }
+
+            }
+            totalTime += resultItem.getEchoTime();
+        }
+        if (n > 0 && size > 0) {
+            pingableTime = pingableTime / n;
+            lostPrecents = (1.0 - n / size) * 100;
+        }
+        stats = "Total=" + size
+                + "Reachable=" + n
+                + ", Lost=" + lostPrecents
+                + "; Average Time=" + pingableTime
+                + ", Min Time=" + minTime
+                + ", Max Time=" + maxTime
+                + ", Total Time=" + totalTime;
+        return stats;
     }
 
     /**
