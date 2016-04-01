@@ -120,8 +120,8 @@ public class PingFragment extends Fragment {
         IpEndText = (EditText) rootView.findViewById(R.id.ip_addr_end);
         final TextView localIpText = (TextView) rootView.findViewById(R.id.title);
 
-        //IpStartText.setText("192.168.1.95");
-        //IpEndText.setText("192.168.1.100");
+        //IpStartText.setText("192.168.3.1");
+        //IpEndText.setText("192.168.3.5");
 
         resultsAdapter = new PingResultsAdapter(context, resultArray);
         listView.setAdapter(resultsAdapter);
@@ -133,6 +133,12 @@ public class PingFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                SharedPreferences.Editor speditor = context.getSharedPreferences(PREFS_IP_ADDR, Context.MODE_PRIVATE).edit();
+                speditor.clear();
+                speditor.putString("startipstring", IpStartText.getText().toString());
+                speditor.putString("endipstring", IpEndText.getText().toString());
+                speditor.apply();
 
                 // hide IME
                 InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -150,7 +156,9 @@ public class PingFragment extends Fragment {
                 try {
                     PingTask task = new PingTask (context);
                     resultArray = task.execute(ipRange).get(5, TimeUnit.SECONDS);
-                    resultsAdapter.refresh(resultArray);
+                    if (!resultArray.isEmpty()) {
+                        resultsAdapter.refresh(resultArray);
+                    }
                     //resultArray.add(result);
                     //nFinished++;
                 } catch (InterruptedException | ExecutionException | TimeoutException e ) {
