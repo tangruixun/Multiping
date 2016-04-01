@@ -162,63 +162,92 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
         int n = 0; // reachable number
         int size = resultArray.size();
         long reachableTime = 0;
-        long totalTime = 0, totalReachableTime = 0;
+        long totalReachableTime = 0;
         long minTime = 0;
         long maxTime = 0;
 
-        for (PingResult resultItem: resultArray) {
-            if (resultItem.isReachable()) {
-                n++;
-                reachableArray.add (resultItem);
-                totalReachableTime += resultItem.getEchoTime();
+        if (!resultArray.isEmpty()) {
+            for (PingResult resultItem: resultArray) {
+                if (resultItem.isReachable()) {
+                    n++;
+                    reachableArray.add (resultItem);
+                    totalReachableTime += resultItem.getEchoTime();
+                }
             }
-            totalTime += resultItem.getEchoTime();
+
+            if (!reachableArray.isEmpty() && n > 0) {
+                reachableArray = quickSort (reachableArray, 0, reachableArray.size()-1);
+                reachableTime = totalReachableTime / n;
+                minTime = reachableArray.get(0).getEchoTime();
+                maxTime = reachableArray.get(reachableArray.size()).getEchoTime();
+            }
+            if (size > 0) {
+                lostPrecents = (1.0 - n / size) * 100;
+            }
         }
 
-        reachableArray = quickSort (reachableArray, 0, reachableArray.size());
+        PingResult tempItem = new PingResult();
+        tempItem.setEchoTime(1);
+        List<PingResult> tempList = new ArrayList<>();
+        tempList.add(tempItem);
+        tempItem = new PingResult();
+        tempItem.setEchoTime(5);
+        tempList.add(tempItem);
+        tempItem = new PingResult();
+        tempItem.setEchoTime(4);
+        tempList.add(tempItem);
+        tempItem = new PingResult();
+        tempItem.setEchoTime(3);
+        tempList.add(tempItem);
+        tempItem = new PingResult();
+        tempItem.setEchoTime(5);
+        tempList.add(tempItem);
 
-        if (size > 0) {
-            lostPrecents = (1.0 - n / size) * 100;
-        }
-        if (n > 0) {
-            reachableTime = totalReachableTime / n;
-        }
 
-        minTime = reachableArray.get(0).getEchoTime();
-        maxTime = reachableArray.get(reachableArray.size()).getEchoTime();
+        tempList = quickSort (tempList, 0, tempList.size()-1);
+
         stats = "Total=" + size
                 + "Reachable=" + n
                 + ", Lost=" + lostPrecents
                 + "; Average Time=" + reachableTime
                 + ", Min Time=" + minTime
-                + ", Max Time=" + maxTime
-                + ", Total Time=" + totalTime;
+                + ", Max Time=" + maxTime;
         return stats;
     }
 
     private List<PingResult> quickSort (List<PingResult> array, int left, int right) {
-        int i = left;
-        int j = right;
-        long pivotValue = array.get(i).getEchoTime();
-        PingResult pivotItem = array.get(i);
+        if ((right - left) > 0) {
+            int i = left;
+            int j = right;
+            int middle = (left+right)/2;
+            long pivotValue = array.get(middle).getEchoTime();
+            PingResult pivotItem = array.get(middle);
 
-        while (i<j) {
-            while (array.get(j).getEchoTime() > pivotValue && i<j) {
-                j--;
-            }
-            while (array.get(i).getEchoTime() < pivotValue && i<j) {
-                i++;
+            while (i < j) {
+                while (array.get(j).getEchoTime() > pivotValue && i < j) {
+                    j--;
+                }
+                while (array.get(i).getEchoTime() < pivotValue && i < j) {
+                    i++;
+                }
+
+                //swap
+                if (i <= j) {
+                    PingResult temp = array.get(j);
+                    array.set(j, array.get(i));
+                    array.set(i, temp);
+                    i++;
+                    j--;
+                }
             }
 
-            //swap
-            PingResult temp = array.get(j);
-            array.set(j, array.get(i));
-            array.set(i, temp);
+            if (i>left) {
+                quickSort(array, left, i);
+            }
+            if (i<right) {
+                quickSort(array, i, right);
+            }
         }
-        array.set(left, array.get(i));
-        array.set(i, pivotItem);
-        quickSort(array, left, i-1);
-        quickSort(array, i+1, right);
         return array;
     }
 
