@@ -21,7 +21,7 @@
     <string name="pref_header_general">General</string>
 
     <string name="pref_scan_method">Scan Method</string>
-    <string name="pref_scan_method_des">Use isReachable () instead of ping</string>
+    <string name="pref_scan_method_des">Use isReachable () instead of ping in case Ping command is unavailable/not reliable.</string>
 
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
@@ -88,4 +88,5 @@
     <string name="share_subject">Multi Ping</string>
     <string name="copyright">T. R. X.</string>
     <string name="copyright_year">2016</string>
+    <string name="promp_can_not_empty">Cannot be empty.</string>
 </resources>

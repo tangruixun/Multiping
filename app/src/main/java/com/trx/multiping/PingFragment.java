@@ -31,9 +31,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -56,6 +53,7 @@ public class PingFragment extends Fragment {
 
     private EditText IpStartText;
     private EditText IpEndText;
+    private ListView listView;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -115,7 +113,7 @@ public class PingFragment extends Fragment {
 
         resultArray = new ArrayList<>();
 
-        final ListView listView = (ListView) rootView.findViewById(R.id.listView);
+        listView = (ListView) rootView.findViewById(R.id.listView);
         IpStartText = (EditText) rootView.findViewById(R.id.ip_addr_start);
         IpEndText = (EditText) rootView.findViewById(R.id.ip_addr_end);
         final TextView localIpText = (TextView) rootView.findViewById(R.id.title);
@@ -147,22 +145,24 @@ public class PingFragment extends Fragment {
                 fab.setEnabled(false);
                 IpStartText.setEnabled(false);
                 IpEndText.setEnabled(false);
-
                 String strIpStart = IpStartText.getText().toString();
                 String strIpEnd = IpEndText.getText().toString();
-                List<Long> ipRange = getRange(strIpStart, strIpEnd);
-                resultArray.clear();
-                resultsAdapter.notifyDataSetChanged();
-                try {
-                    PingTask task = new PingTask (context);
-                    resultArray = task.execute(ipRange).get(5, TimeUnit.SECONDS);
-                    if (!resultArray.isEmpty()) {
-                        resultsAdapter.refresh(resultArray);
+                if (strIpStart.trim().length() == 0) {
+                    IpStartText.setError(getString(R.string.promp_can_not_empty));
+                } else if (strIpEnd.trim().length() == 0) {
+                    IpEndText.setError(getString(R.string.promp_can_not_empty));
+                } else {
+                    List<Long> ipRange = getRange(strIpStart, strIpEnd);
+                    resultArray.clear();
+                    resultsAdapter.notifyDataSetChanged();
+                    try {
+                        PingTask task = new PingTask (context);
+                        task.execute(ipRange);
+                        //resultArray.add(result);
+                        //nFinished++;
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    //resultArray.add(result);
-                    //nFinished++;
-                } catch (InterruptedException | ExecutionException | TimeoutException e ) {
-                    e.printStackTrace();
                 }
                 IpStartText.setEnabled(true);
                 IpEndText.setEnabled(true);
@@ -227,6 +227,7 @@ public class PingFragment extends Fragment {
             return true;
         } else if (id == R.id.action_clear) {
             resultArray.clear();
+            listView.setAdapter(resultsAdapter);
             resultsAdapter.notifyDataSetChanged();
             return true;
         }

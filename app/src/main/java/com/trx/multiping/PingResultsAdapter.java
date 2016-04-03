@@ -1,11 +1,13 @@
 package com.trx.multiping;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -80,7 +82,8 @@ public class PingResultsAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
+        PingResult resultItem = getItem(position);
+        Log.i ("--->", position + "");
         if (convertView == null) {
             convertView = mAdapterInflater.inflate(R.layout.result_item, parent, false);
             tag = new TagView(convertView);
@@ -88,14 +91,16 @@ public class PingResultsAdapter extends BaseAdapter {
         } else {
             tag = (TagView) convertView.getTag();
         }
-
-        PingResult resultItem = getItem(position);
         if (resultItem.isReachable()) {
+            tag.ll.setVisibility(View.VISIBLE);
             tag.tvRemoteIP.setText(resultItem.getRemoteIP().getHostAddress());
             tag.tvEchoTime.setText(String.valueOf(resultItem.getEchoTime()) + "ms");
+            convertView.setVisibility(View.VISIBLE);
         } else {
-            // hide no pingable items
-            convertView = mAdapterInflater.inflate(R.layout.result_item_null, parent, false);
+            tag.ll.setVisibility(View.GONE);
+            tag.tvRemoteIP.setVisibility(View.GONE);
+            tag.tvEchoTime.setVisibility(View.GONE);
+            convertView.setVisibility(View.GONE);
         }
         return convertView;
     }
@@ -109,11 +114,13 @@ public class PingResultsAdapter extends BaseAdapter {
 
         TextView tvRemoteIP, tvEchoTime;
         ImageView ivIcon;
+        LinearLayout ll;
 
         public TagView(View item) {
             tvRemoteIP = (TextView) item.findViewById(R.id.tvRemoteIP);
             tvEchoTime = (TextView) item.findViewById(R.id.tvEchoTime);
             ivIcon = (ImageView) item.findViewById(R.id.ivIcon);
+            ll = (LinearLayout) item.findViewById(R.id.itemlinearlayout);
         }
     }
 }

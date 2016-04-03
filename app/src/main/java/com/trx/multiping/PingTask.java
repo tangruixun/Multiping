@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
@@ -32,12 +34,15 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
     private boolean bMethod;
     private boolean bBeep;
     private TextView StatText;
+    private PingResultsAdapter resultsAdapter;
+    private ListView listView;
 
     public PingTask(Context c) {
         contextReference = new WeakReference<>(c);
         context = contextReference.get();
-
         myTask = this;
+
+        listView = (ListView) ((Activity) context).findViewById(R.id.listView);
         StatText = (TextView) ((Activity) context).findViewById(R.id.stats);
         progressDlg = new ProgressDialog(context);
         progressDlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -142,17 +147,23 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
      * <p/>
      * <p>This method won't be invoked if the task was cancelled.</p>
      *
-     * @param pingResults The result of the operation computed by {@link #doInBackground}.
+     * @param //pingResults The result of the operation computed by {@link #doInBackground}.
      * @see #onPreExecute
      * @see #doInBackground
      * @see #onCancelled(Object)
      */
     @Override
-    protected void onPostExecute(List<PingResult> pingResults) {
-        super.onPostExecute(pingResults);
+    protected void onPostExecute(List<PingResult> resultArray) {
+        super.onPostExecute(resultArray);
+
+        resultsAdapter = new PingResultsAdapter(context, resultArray);
+        listView.setAdapter(resultsAdapter);
+        if (!resultArray.isEmpty()) {
+            resultsAdapter.refresh(resultArray);
+        }
         ((Activity) context).getWindow().clearFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         progressDlg.dismiss();
-        StatText.setText(StatisticResultInfo (pingResults));
+        StatText.setText(StatisticResultInfo (resultArray));
     }
 
     private String StatisticResultInfo(List<PingResult> resultArray) {
@@ -176,79 +187,64 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
             }
 
             if (!reachableArray.isEmpty() && n > 0) {
-                reachableArray = quickSort (reachableArray, 0, reachableArray.size()-1);
+                qSort (reachableArray);
                 reachableTime = totalReachableTime / n;
                 minTime = reachableArray.get(0).getEchoTime();
-                maxTime = reachableArray.get(reachableArray.size()).getEchoTime();
+                maxTime = reachableArray.get(reachableArray.size()-1).getEchoTime();
             }
             if (size > 0) {
                 lostPrecents = (1.0 - n / size) * 100;
             }
         }
 
-        PingResult tempItem = new PingResult();
-        tempItem.setEchoTime(1);
-        List<PingResult> tempList = new ArrayList<>();
-        tempList.add(tempItem);
-        tempItem = new PingResult();
-        tempItem.setEchoTime(5);
-        tempList.add(tempItem);
-        tempItem = new PingResult();
-        tempItem.setEchoTime(4);
-        tempList.add(tempItem);
-        tempItem = new PingResult();
-        tempItem.setEchoTime(3);
-        tempList.add(tempItem);
-        tempItem = new PingResult();
-        tempItem.setEchoTime(5);
-        tempList.add(tempItem);
-
-
-        tempList = quickSort (tempList, 0, tempList.size()-1);
-
         stats = "Total=" + size
-                + "Reachable=" + n
-                + ", Lost=" + lostPrecents
-                + "; Average Time=" + reachableTime
-                + ", Min Time=" + minTime
-                + ", Max Time=" + maxTime;
+                + ", Reachable=" + n
+                + ", Lost=" + lostPrecents + "%"
+                + "; \nAverage=" + reachableTime + "ms"
+                + ", Min=" + minTime + "ms"
+                + ", Max=" + maxTime + "ms";
         return stats;
     }
 
-    private List<PingResult> quickSort (List<PingResult> array, int left, int right) {
-        if ((right - left) > 0) {
-            int i = left;
+    public void qSort(List<PingResult> list) {
+        /*
+        for (PingResult item :
+                list) {
+            Log.i ("--->", String.valueOf(item.getEchoTime()));
+        }*/
+        quickSort(list, 0, list.size() - 1);
+    }
+
+    private void quickSort (List<PingResult> array, int left, int right) {
+        if (right > left) {
+            int i = left + 1;
             int j = right;
-            int middle = (left+right)/2;
-            long pivotValue = array.get(middle).getEchoTime();
-            PingResult pivotItem = array.get(middle);
+            int pivot = left;
+            long pivotValue = array.get(pivot).getEchoTime();
 
-            while (i < j) {
-                while (array.get(j).getEchoTime() > pivotValue && i < j) {
-                    j--;
-                }
-                while (array.get(i).getEchoTime() < pivotValue && i < j) {
+            while (i <= j) {
+                // find value greater than pivot value from left
+                while (i <= right && array.get(i).getEchoTime() <= pivotValue) {
                     i++;
                 }
-
+                // find value less than pivot value from right
+                while ( j > left && (array.get(j).getEchoTime() > pivotValue)) {
+                    j--;
+                }
                 //swap
-                if (i <= j) {
-                    PingResult temp = array.get(j);
-                    array.set(j, array.get(i));
-                    array.set(i, temp);
-                    i++;
-                    j--;
+                if (i < j) {
+                    Collections.swap(array, i, j);
                 }
             }
-
-            if (i>left) {
-                quickSort(array, left, i);
-            }
-            if (i<right) {
-                quickSort(array, i, right);
-            }
+            Collections.swap (array, pivot, i-1);
+            quickSort(array, j+1, right);
+            quickSort(array, left, j-1);
         }
-        return array;
+        /*
+        for (PingResult item :
+                array) {
+            Log.i ("--->", String.valueOf(item.getEchoTime()));
+        }*/
     }
 
     /**
