@@ -79,7 +79,7 @@
     <string name="frag_title_ping">Multi Ping</string>
     <string name="pref_scan_method_key">scanmethod</string>
     <string name="pref_sound_key">sound</string>
-    <string name="version">v0.1</string>
+    <string name="version">v1.0</string>
     <string name="prom_ip_end_less_than_begin">End IP must greater or equal than start IP...</string>
     <string name="cancel">Cancel</string>
     <string name="share_this_app">Share This App</string>
