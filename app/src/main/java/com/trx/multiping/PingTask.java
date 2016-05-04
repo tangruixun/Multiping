@@ -36,6 +36,8 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
     private TextView StatText;
     private PingResultsAdapter resultsAdapter;
     private ListView listView;
+    private List<PingResult> reachableArray = new ArrayList<>();
+
 
     public PingTask(Context c) {
         contextReference = new WeakReference<>(c);
@@ -155,19 +157,22 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
     @Override
     protected void onPostExecute(List<PingResult> resultArray) {
         super.onPostExecute(resultArray);
-
-        resultsAdapter = new PingResultsAdapter(context, resultArray);
-        listView.setAdapter(resultsAdapter);
-        if (!resultArray.isEmpty()) {
-            resultsAdapter.refresh(resultArray);
-        }
         ((Activity) context).getWindow().clearFlags (WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         progressDlg.dismiss();
         StatText.setText(StatisticResultInfo (resultArray));
+
+        // resultsAdapter = new PingResultsAdapter(context, resultArray);
+        resultsAdapter = new PingResultsAdapter(context, reachableArray);
+        listView.setAdapter(resultsAdapter);
+        /*if (!resultArray.isEmpty()) {
+            resultsAdapter.refresh(resultArray);
+        }*/
+        if (!reachableArray.isEmpty()) {
+            resultsAdapter.refresh(reachableArray);
+        }
     }
 
     private String StatisticResultInfo(List<PingResult> resultArray) {
-        List<PingResult> reachableArray = new ArrayList<>();
         String stats = "";
         double lostPrecents = 0;
         int n = 0; // reachable number
@@ -176,6 +181,7 @@ class PingTask extends AsyncTask<List<Long> , Integer, List<PingResult>> {
         long totalReachableTime = 0;
         long minTime = 0;
         long maxTime = 0;
+        reachableArray.clear();
 
         if (!resultArray.isEmpty()) {
             for (PingResult resultItem: resultArray) {

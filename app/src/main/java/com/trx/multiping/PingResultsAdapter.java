@@ -91,6 +91,7 @@ public class PingResultsAdapter extends BaseAdapter {
         } else {
             tag = (TagView) convertView.getTag();
         }
+        /*
         if (resultItem.isReachable()) {
             tag.ll.setVisibility(View.VISIBLE);
             tag.tvRemoteIP.setText(resultItem.getRemoteIP().getHostAddress());
@@ -101,7 +102,9 @@ public class PingResultsAdapter extends BaseAdapter {
             tag.tvRemoteIP.setVisibility(View.GONE);
             tag.tvEchoTime.setVisibility(View.GONE);
             convertView.setVisibility(View.GONE);
-        }
+        }*/
+        tag.tvRemoteIP.setText(resultItem.getRemoteIP().getHostAddress());
+        tag.tvEchoTime.setText(String.valueOf(resultItem.getEchoTime()) + "ms");
         return convertView;
     }
 

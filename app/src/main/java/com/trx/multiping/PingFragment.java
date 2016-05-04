@@ -44,8 +44,8 @@ import java.util.List;
 public class PingFragment extends Fragment {
 
     private static final String PREFS_IP_ADDR = "PREFS_IP_ADDR";
-    private List<PingResult> resultArray;
-    private PingResultsAdapter resultsAdapter;
+    //private List<PingResult> resultArray;
+    //private PingResultsAdapter resultsAdapter;
     private Context context;
     private Activity activity;
     private FloatingActionButton fab;
@@ -111,7 +111,7 @@ public class PingFragment extends Fragment {
         context = rootView.getContext();
         activity = getActivity();
 
-        resultArray = new ArrayList<>();
+        //resultArray = new ArrayList<>();
 
         listView = (ListView) rootView.findViewById(R.id.listView);
         IpStartText = (EditText) rootView.findViewById(R.id.ip_addr_start);
@@ -121,8 +121,8 @@ public class PingFragment extends Fragment {
         //IpStartText.setText("192.168.3.1");
         //IpEndText.setText("192.168.3.5");
 
-        resultsAdapter = new PingResultsAdapter(context, resultArray);
-        listView.setAdapter(resultsAdapter);
+        //resultsAdapter = new PingResultsAdapter(context, resultArray);
+        //listView.setAdapter(resultsAdapter);
 
         String strLocalIp = getLocalIpAddress();
         localIpText.setText(getString(R.string.local_ip_des) + strLocalIp);
@@ -153,8 +153,8 @@ public class PingFragment extends Fragment {
                     IpEndText.setError(getString(R.string.promp_can_not_empty));
                 } else {
                     List<Long> ipRange = getRange(strIpStart, strIpEnd);
-                    resultArray.clear();
-                    resultsAdapter.notifyDataSetChanged();
+                    //resultArray.clear();
+                    //resultsAdapter.notifyDataSetChanged();
                     try {
                         PingTask task = new PingTask (context);
                         task.execute(ipRange);
@@ -226,6 +226,9 @@ public class PingFragment extends Fragment {
 
             return true;
         } else if (id == R.id.action_clear) {
+            List <PingResult> resultArray = new ArrayList<>();
+            resultArray.clear();
+            PingResultsAdapter resultsAdapter = new PingResultsAdapter(context, resultArray);
             resultArray.clear();
             listView.setAdapter(resultsAdapter);
             resultsAdapter.notifyDataSetChanged();
