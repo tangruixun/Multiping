@@ -80,13 +80,13 @@
     <string name="pref_scan_method_key">scanmethod</string>
     <string name="pref_sound_key">sound</string>
     <string name="version">v1.0</string>
-    <string name="prom_ip_end_less_than_begin">End IP must greater or equal than start IP...</string>
+    <string name="prom_ip_end_less_than_begin">End IP must greater or equal than start IP…</string>
     <string name="cancel">Cancel</string>
     <string name="share_this_app">Share This App</string>
-    <string name="share_via">Share via...</string>
-    <string name="share_text">Get MultiPing to scan IP range on Android!</string>
+    <string name="share_via">Share via…</string>
+    <string name="share_text">Get MultiPing to scan IP range on Android! https://goo.gl/1w9h8A</string>
     <string name="share_subject">Multi Ping</string>
-    <string name="copyright">T. R. X.</string>
+    <string name="copyright">RX Dev</string>
     <string name="copyright_year">2016</string>
     <string name="promp_can_not_empty">Cannot be empty.</string>
 </resources>
