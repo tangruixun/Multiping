@@ -89,4 +89,5 @@
     <string name="copyright">RX Dev</string>
     <string name="copyright_year">2016</string>
     <string name="promp_can_not_empty">Cannot be empty.</string>
+
 </resources>
